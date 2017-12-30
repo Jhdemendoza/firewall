@@ -4,7 +4,7 @@
 #
 #  Firewall Builder  fwb_ipt v5.1.0.3599
 #
-#  Generated Thu Dec 28 10:00:54 2017 UTC by root
+#  Generated Sat Dec 30 15:21:36 2017 UTC by root
 #
 # files: * fw.fw /etc/fw.fw
 #
@@ -345,10 +345,16 @@ script_body() {
     # 
     echo "Rule 0 (global)"
     # 
-    # Permite acceso a los servidores web a través del balanceador de carga.
+    # Permite acceso al balanceador de tráfico.
+    $IPTABLES -N Cid2897X578.0
+    $IPTABLES -A OUTPUT -p tcp -m tcp  --dport 80  -m state --state NEW  -j Cid2897X578.0
     $IPTABLES -N RULE_0
-    $IPTABLES -A OUTPUT -p tcp -m tcp  -d 10.1.2.2   --dport 80  -m state --state NEW  -j RULE_0
-    $IPTABLES -A FORWARD -p tcp -m tcp  -d 10.1.2.2   --dport 80  -m state --state NEW  -j RULE_0
+    $IPTABLES -A Cid2897X578.0  -d 10.1.2.2   -j RULE_0
+    $IPTABLES -A Cid2897X578.0  -d 10.1.3.1   -j RULE_0
+    $IPTABLES -N Cid2897X578.1
+    $IPTABLES -A FORWARD -p tcp -m tcp  --dport 80  -m state --state NEW  -j Cid2897X578.1
+    $IPTABLES -A Cid2897X578.1  -d 10.1.2.2   -j RULE_0
+    $IPTABLES -A Cid2897X578.1  -d 10.1.3.1   -j RULE_0
     $IPTABLES -A RULE_0  -j LOG  --log-level info --log-prefix "RULE 0 -- ACCEPT "
     $IPTABLES -A RULE_0  -j ACCEPT
     # 
@@ -399,6 +405,7 @@ script_body() {
     $IPTABLES -A INPUT -p tcp -m tcp  --dport 22  -m state --state NEW  -j Cid2208X5996.4
     $IPTABLES -A Cid2208X5996.4  -s 10.1.2.0/24   -j RULE_2
     $IPTABLES -A Cid2208X5996.4  -s 10.1.3.0/24   -j RULE_2
+    $IPTABLES -A Cid2208X5996.4  -s 10.1.4.0/24   -j RULE_2
     $IPTABLES -A Cid2208X5996.4  -s 10.250.0.0/24   -j RULE_2
     $IPTABLES -A RULE_2  -j LOG  --log-level info --log-prefix "RULE 2 -- ACCEPT "
     $IPTABLES -A RULE_2  -j ACCEPT
@@ -420,20 +427,16 @@ script_body() {
     # 
     echo "Rule 4 (global)"
     # 
-    # Permite el acceso desde la red interna a la DMZ por ssh y http
+    # Permite el acceso desde las redes internas al balanceador de tráfico.
     $IPTABLES -N Cid2244X5996.0
     $IPTABLES -A INPUT -p tcp -m tcp  -m multiport  --dports 80,22  -m state --state NEW  -j Cid2244X5996.0
     $IPTABLES -N RULE_4
-    $IPTABLES -A Cid2244X5996.0  -s 10.1.2.0/24   -j RULE_4
     $IPTABLES -A Cid2244X5996.0  -s 10.1.3.0/24   -j RULE_4
+    $IPTABLES -A Cid2244X5996.0  -s 10.1.4.0/24   -j RULE_4
     $IPTABLES -N Cid2244X5996.1
-    $IPTABLES -A OUTPUT -p tcp -m tcp  -m multiport  --dports 80,22  -m state --state NEW  -j Cid2244X5996.1
-    $IPTABLES -A Cid2244X5996.1  -s 10.1.2.0/24   -j RULE_4
+    $IPTABLES -A FORWARD -p tcp -m tcp  -m multiport  --dports 80,22  -m state --state NEW  -j Cid2244X5996.1
     $IPTABLES -A Cid2244X5996.1  -s 10.1.3.0/24   -j RULE_4
-    $IPTABLES -N Cid2244X5996.2
-    $IPTABLES -A FORWARD -p tcp -m tcp  -m multiport  --dports 80,22  -m state --state NEW  -j Cid2244X5996.2
-    $IPTABLES -A Cid2244X5996.2  -s 10.1.2.0/24   -j RULE_4
-    $IPTABLES -A Cid2244X5996.2  -s 10.1.3.0/24   -j RULE_4
+    $IPTABLES -A Cid2244X5996.1  -s 10.1.4.0/24   -j RULE_4
     $IPTABLES -A RULE_4  -j LOG  --log-level info --log-prefix "RULE 4 -- ACCEPT "
     $IPTABLES -A RULE_4  -j ACCEPT
     # 
@@ -503,7 +506,7 @@ test -z "$cmd" && {
 
 case "$cmd" in
     start)
-        log "Activating firewall script generated Thu Dec 28 10:00:54 2017 by root"
+        log "Activating firewall script generated Sat Dec 30 15:21:36 2017 by root"
         check_tools
          prolog_commands 
         check_run_time_address_table_files
